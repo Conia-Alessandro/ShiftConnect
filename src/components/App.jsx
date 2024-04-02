@@ -1,3 +1,4 @@
+// 2: the app initialization and routing, goes to <Tab/> by default ("*")
 // https://fluentsite.z22.web.core.windows.net/quick-start
 import {
   FluentProvider,

@@ -1,7 +1,7 @@
 import { useMutation } from "@apollo/client";
 import { useState } from "react"; // Import useState hook#
 
-import CREATE_NEW_APPLICATION from "../components/mutations/createApplication.graphql";
+import CREATE_NEW_APPLICATION from "../graphql/mutations/createApplication.graphql";
 /**
  * Custom hook to create an application
  * @returns Data from the Graphql query

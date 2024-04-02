@@ -5,7 +5,7 @@ import { TeamsFxContext } from "./Context";
 /**
 * Importing the Rest of the components
 */
-import {Hub} from "../components/mainComponents/hub.jsx";
+import {Hub} from "../components/mainComponents/Hub.jsx";
 import {Staff} from "../components/mainComponents/Staff.jsx"
 
 // load the environment variables

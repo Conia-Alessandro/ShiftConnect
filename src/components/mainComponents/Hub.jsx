@@ -2,12 +2,12 @@ import { useQuery, useMutation } from "@apollo/client";
 import GET_ALL_SHIFTS from "../../graphql/queries/getAllShifts.graphql";
 import GET_STAFF_BY_NAME from "../../graphql/queries/getStaffByName";
 import "../../styles/hub.css";
-import ShiftCard from "./ShiftCard";
-import UPDATE_APPLICATION_STATUS from "../mutations/updateApplicationStatus.graphql";
+import ShiftCard from "../informationalComponents/ShiftCard";
+import UPDATE_APPLICATION_STATUS from "../../graphql/mutations/updateApplicationStatus.graphql";
 import { useContext, useEffect, useState } from "react";
 import { TeamsFxContext } from "../Context"; // Assuming you have a file named TeamsFxContext.js where you define this context.
-import splitStringBySpace from "../../../utils/stringSplitter";
-import sanitizeInput from "../../../utils/inputSanitizer";
+import splitStringBySpace from "../../utils/stringSplitter";
+import sanitizeInput from "../../utils/inputSanitizer";
 import StatusIndicator from "../informationalComponents/StatusIndicator";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";

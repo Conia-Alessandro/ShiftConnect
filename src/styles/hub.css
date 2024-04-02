@@ -1,0 +1,259 @@
+/* style specific to the hub page */
+.hub.page {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Center items vertically */
+  justify-content: center; /* Center items horizontally */
+  margin: 20px; /* Add margin around the hub page */
+  padding: 20px; /* Add padding to the hub page */
+  height: max-content;
+}
+/* Container for the list of shift cards */
+.shift-card-list {
+  display: flex;
+  flex-direction: row; /* Display cards horizontally by default */
+  gap: 5px; /* gap between cards */
+  padding: 5px;
+  justify-content: flex-start; /* Center cards horizontally */
+  flex-wrap: wrap; /* Allow cards to wrap to the next line */
+  max-height: calc(100vh - 100px); /* leave space to other elements*/
+  overflow-y: auto;
+}
+
+/*Status indicators */
+.status-indicators {
+  display: flex;
+  justify-content: center;
+  margin-top: 5px;
+  border: 5px solid #007bff;
+  border-radius: 5px;
+  padding: 20px 20px;
+  padding-top: 5px;
+  border-top: none;
+  border-right: none;
+}
+
+.status-indicator {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
+.status-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.status-indicator span {
+  font-size: 14px;
+}
+
+/* Styling for checkboxes */
+.checkboxes {
+  display: flex;
+  flex-wrap: wrap; /* Allow wrapping */
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center; /* Vertically center the checkbox and label */
+  margin-right: 20px; /* Add space between checkboxes */
+}
+
+.checkbox-label input[type="checkbox"] {
+  transform: scale(1.2); /* Increase size of checkbox */
+  margin-right: 5px; /* Add some space between checkbox and label */
+}
+
+.checkbox-label input[type="checkbox"].pastShiftsToggle {
+  accent-color: crimson;
+}
+/* Add animation on checkbox click */
+.checkbox-label input[type="checkbox"]:checked {
+  animation: scaleCheckbox 0.2s ease-in-out; /* Apply animation on checked state */
+}
+.colorSchemeLabel {
+  color: #ffffff; /* White text color */
+  background-color: #007bff; /* Blue background */
+  padding: 8px 16px; /* Increased padding for better touch target */
+  border: 1px solid #007bff; /* Blue border */
+  border-radius: 5px; /* Rounded corners */
+  transition: background-color 0.3s, color 0.3s; /* Smooth transition */
+}
+.colorSchemeLabel:hover {
+  color: #ffffff; /* White text color on hover */
+  background-color: #0056b3; /* Darker blue background on hover */
+  cursor: pointer;
+}
+.header-container {
+  background-color: #464eb8; /* Background color , was #007bff*/
+  color: #ffffff; /* Text color */
+  padding: 20px; /* Padding around the text */
+  margin-bottom: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-align: left;
+  font-size: 22px;
+  font-weight: bold; /* Bold font weight */
+  width: calc(100vw - 100px);
+}
+.header-container h3 {
+  color: ghostwhite;
+}
+
+/* Style for the casual worker input */
+.casual-worker-input {
+  width: 400px; /* Make the input span the full width of its container */
+  padding: 10px;
+  margin-bottom: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+}
+.checkbox-filters {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+
+/* Custom checkbox styles */
+.checkbox-label input[type="checkbox"] {
+  /* Hide the default checkbox */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  outline: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #555;
+  border-radius: 3px;
+  cursor: pointer;
+  position: relative;
+}
+
+/* Custom checkbox checked state */
+.checkbox-label input[type="checkbox"]:checked::before {
+  content: "\2713"; /* Checkmark symbol */
+  font-size: 14px;
+  color: #555;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Custom checkbox hover state */
+.checkbox-label input[type="checkbox"]:hover {
+  background-color: #f0f0f0;
+}
+
+/* Custom checkbox focus state */
+.checkbox-label input[type="checkbox"]:focus {
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Adjust margin between checkbox and label */
+.checkbox-label input[type="checkbox"] + span {
+  margin-left: 5px;
+}
+
+.input-container {
+  display: flex;
+  align-items: center; /* Align items vertically */
+}
+
+.casual-worker-input {
+  margin-right: 10px; /* Add some space between input field and loading spinner */
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 45px;
+  height: 20px; /* Increase height to create space for lower starting position */
+}
+
+.loading-spinner div {
+  width: 10px;
+  height: 10px;
+  background-color: #333;
+  border-radius: 50%;
+  display: inline-block;
+  animation: bounce 0.6s infinite alternate;
+}
+
+.loading-spinner .dot-1 {
+  animation-delay: 0.1s;
+  margin-right: 5px;
+}
+
+.loading-spinner .dot-2 {
+  animation-delay: 0.2s;
+  margin-right: 5px;
+}
+
+.loading-spinner .dot-3 {
+  animation-delay: 0.3s;
+}
+
+@keyframes bounce {
+  to {
+    transform: translateY(
+      -20px
+    ); /* Adjust translateY to control the bouncing height */
+  }
+}
+
+/* Media query for small screens */
+@media (max-width: 768px) {
+  .loading-spinner {
+    width: 30px; /* Adjust width for smaller screens */
+    height: 50px; /* Adjust height for smaller screens */
+  }
+
+  .loading-spinner div {
+    width: 8px; /* Adjust dot size for smaller screens */
+    height: 8px; /* Adjust dot size for smaller screens */
+    margin-top: 15px; /* Adjust margin-top for smaller screens */
+  }
+}
+
+@keyframes scaleCheckbox {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2); /* Scale up to 1.2 at 50% of animation */
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Adjust layout for smaller screens */
+@media (max-width: 600px) {
+  .hub.page {
+    flex-direction: column; /* Display cards vertically on smaller screens */
+    align-items: center; /* Center cards vertically */
+  }
+  .no-shifts-message {
+    margin-top: 10px; /* Adjust margin-top for small screens */
+  }
+  .casual-worker-input {
+    width: calc(
+      100% - 20px
+    ); /* Make the input span 100% width with some padding */
+  }
+
+  .input-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .casual-worker-input {
+    margin-bottom: 10px; /* Add some spacing between input and spinner */
+  }
+}

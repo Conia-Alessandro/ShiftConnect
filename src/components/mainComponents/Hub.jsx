@@ -76,8 +76,8 @@ export function Hub() {
    */
   useEffect(() => {
     if (user) {
-      //setFirstName(splitStringBySpace(user).name);
-      setFirstName(splitStringBySpace("Grim Saint").name);
+      setFirstName(splitStringBySpace(user).name);
+      //setFirstName(splitStringBySpace("Grim Saint").name);
     }
   }, [user]);
   /**

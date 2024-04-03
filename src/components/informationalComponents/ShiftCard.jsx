@@ -117,7 +117,7 @@ const ShiftCard = ({ shift, user, casualWorker, updateApplicationStatus }) => {
       // shift.status could be OPEN, COMMENCING, CLOSED , CONCLUDED
       setCardClass(
         getCardClass(
-          shift.status !== "CLOSED"
+          shift.status === "OPEN" || shift.status === "COMMENCING"
             ? userApplication.applicationStatus
             : shift.status
         )
@@ -244,9 +244,6 @@ const ShiftCard = ({ shift, user, casualWorker, updateApplicationStatus }) => {
       <div className="card-header">
         <h3 title="The shift's reference">
           {shift.reference}
-          {debug
-            ? ` (${selectedApplication.applicationStatus.toLowerCase()})`
-            : ""}
         </h3>
         <p>
           <strong>Brief:</strong> {shift.brief}
@@ -333,14 +330,7 @@ const ShiftCard = ({ shift, user, casualWorker, updateApplicationStatus }) => {
         {!isShiftExpired && selectedAnApplication && userApplication && (
           <div>
             <span>What do you want to do?</span>
-            <select
-              value={
-                selectedStatus !== ""
-                  ? selectedStatus
-                  : selectedApplication.applicationStatus
-              }
-              onChange={handleApplicationStatusChange}
-            >
+            <select onChange={handleApplicationStatusChange}>
               {/* change with shift status instead of application status */}
               {shift.status === "OPEN" &&
                 (!selectedApplication ||

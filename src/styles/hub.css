@@ -7,6 +7,7 @@
   margin: 20px; /* Add margin around the hub page */
   padding: 20px; /* Add padding to the hub page */
   height: max-content;
+  color:#333; /*globally color text in "black"*/
 }
 /* Container for the list of shift cards */
 .shift-card-list {
@@ -25,10 +26,10 @@
   display: flex;
   justify-content: center;
   margin-top: 5px;
+  background-color: whitesmoke;
   border: 5px solid #007bff;
   border-radius: 5px;
   padding: 20px 20px;
-  padding-top: 5px;
   border-top: none;
   border-right: none;
 }
@@ -56,6 +57,7 @@
   flex-wrap: wrap; /* Allow wrapping */
   margin-top: 10px;
   margin-bottom: 5px;
+  color:white;
 }
 
 .checkbox-label {
@@ -197,7 +199,21 @@
 .loading-spinner .dot-3 {
   animation-delay: 0.3s;
 }
+/* Button Styling for toggle view*/
+.toggleBtn {
+  padding: 10px 20px;
+  font-size: 16px;
+  border: 2px solid navy;
+  background-color: white;
+  color: navy;
+  cursor: pointer;
+}
 
+.toggleBtn.selected {
+  background-color: navy;
+  color: white;
+  border: 2px solid white;
+}
 @keyframes bounce {
   to {
     transform: translateY(

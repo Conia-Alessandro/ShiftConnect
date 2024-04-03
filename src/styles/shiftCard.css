@@ -8,7 +8,7 @@
   background-color: #f9f9f9;
   margin-right: 10px;
   width: 300px;
-  height: 280px;
+  height: 320px;
   max-height: fit-content;
 }
 .individual-card.expanded {
@@ -53,11 +53,6 @@
   color: #fff;
 }
 
-.card-footer select {
-  margin-top: 10px;
-  padding: 8px;
-  border-radius: 4px;
-}
 
 /* Status-specific styles */
 .individual-card.open {
@@ -74,11 +69,11 @@
   color: black;
 }
 .individual-card.applied {
-  border: 3px solid orange;
+  border: 3px solid pink;
 }
 
 .individual-card.pending {
-  border: 3px solid yellow;
+  border: 3px solid orange;
 }
 
 .individual-card.assigned {
@@ -174,6 +169,15 @@
   background-color: greenyellow;
   color: green;
 }
+
+/* Apply styles to select element (OPEN/APPLIED, etc)*/
+.card-footer select {
+  margin-top: 10px;
+  border: 1px solid #ccc;
+  padding: 8px;
+  border-radius: 4px;
+}
+
 @media (max-width: 600px) {
   .individual-card {
     width: 100%; /* Full width on smaller screens */

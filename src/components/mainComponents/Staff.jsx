@@ -1,7 +1,7 @@
 import "../../styles/staff.css";
 import { useQuery } from "@apollo/client";
 import StaffCard from "../informationalComponents/StaffCard.jsx";
-import GET_STAFF_BY_NAME from "../../graphql/queries/getStaffByName.js";
+import GET_STAFF_BY_NAME from "../../graphql/queries/getStaffByName.graphql.js";
 
 export function Staff() {
   const { loading, error, data } = useQuery(GET_STAFF_BY_NAME, {

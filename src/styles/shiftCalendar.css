@@ -1,5 +1,6 @@
 .Calendar {
   max-width: 100%;
+  width: 100%;
   height: 600px;
   margin: 0 auto;
   padding: 20px;
@@ -36,13 +37,29 @@
 .rbc-event.black {
   background-color: #000; /* Black color for CONCLUDED shifts */
 }
+.rbc-event.white {
+  background-color: white;
+}
 
 /* Default styles for RBC events */
 .rbc-event {
-  border-radius: 4px;
-  padding: 2px 5px;
+  border-radius: 8px; /* was 4px*/
+  padding: 5px; /* was 2px 5px*/
   margin-bottom: 5px;
   color: #fff; /* Event text color */
+  /*was none */
+  margin: 5px 0;
+  font-size: 14px;
+  width: auto;
+}
+.rbc-event.short-event{
+    height: 20px;
+}
+.rbc-event.medium-event{
+    height: 40px;
+}
+.rbc-event.long-event{
+    height: 60px;
 }
 
 /* Styles for big screens (horizontal layout) */

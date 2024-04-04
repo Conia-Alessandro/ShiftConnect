@@ -61,7 +61,8 @@ export function Hub() {
     { name: "Commencing", color: "limegreen" },
     { name: "Rejected", color: "red" },
     { name: "Turned Down", color: "brown" },
-    { name: "Closed", color: "black", textColor: "white" },
+    { name: "Closed", color: "grey", textColor: "white" },
+    { name: "Concluded", color: "black", textColor: "white" },
   ];
   /**
    * 1 : Retrieve User credential and set the user to the Retrieved "Displayed Name" (unique to MS teams account)
@@ -102,7 +103,9 @@ export function Hub() {
       // Filter past shifts if the "showPastShifts" checkbox is checked
       // Updated so it includes COMMENCING shifts
       if (!showPastShifts) {
-        shiftsToShow = shiftsToShow.filter((shift) => shift.status === "OPEN" || shift.status === "COMMENCING");
+        shiftsToShow = shiftsToShow.filter(
+          (shift) => shift.status === "OPEN" || shift.status === "COMMENCING"
+        );
       }
 
       setAllShifts(shiftsToShow);
@@ -326,162 +329,158 @@ export function Hub() {
           CALENDAR VIEW
         </button>
       </div>
-      {viewMode === "shift" ? (
+      {/* supervisor controls */}
+      {isSupervisor && (
         <>
-          {/* supervisor controls */}
-          {isSupervisor && (
-            <>
-              <h3>Look up an Applicant:</h3>
-              <div className="input-container">
-                <input
-                  type="text"
-                  placeholder="First Name"
-                  value={casualWorkerName}
-                  onChange={(e) =>
-                    setCasualWorkerName(sanitizeInput(e.target.value))
-                  }
-                  className="casual-worker-input"
-                />
-                {casualWorkerName.trim() !== "" && loadingQueryCasualWorker && (
-                  <LoadingSpinner />
-                )}{" "}
-                {/* Render loading spinner if search is loading */}
-              </div>
-            </>
-          )}
-          {/*Use case: Non-Supervisor */}
-          <br></br>
-          {/* Status indicator Toggle*/}
-          <label onClick={toggleColorSchemeView} className="colorSchemeLabel">
-            {viewColorScheme ? (
-              <FontAwesomeIcon icon={faEyeSlash} />
-            ) : (
-              <FontAwesomeIcon icon={faEye} />
-            )}
-            {`${viewColorScheme ? " hide" : " view"} color scheme`}
+          <h3>Look up an Applicant:</h3>
+          <div className="input-container">
+            <input
+              type="text"
+              placeholder="First Name"
+              value={casualWorkerName}
+              onChange={(e) =>
+                setCasualWorkerName(sanitizeInput(e.target.value))
+              }
+              className="casual-worker-input"
+            />
+            {casualWorkerName.trim() !== "" && loadingQueryCasualWorker && (
+              <LoadingSpinner />
+            )}{" "}
+            {/* Render loading spinner if search is loading */}
+          </div>
+        </>
+      )}
+      {/*Use case: Non-Supervisor */}
+      <br></br>
+      {/* Status indicator Toggle*/}
+      <label onClick={toggleColorSchemeView} className="colorSchemeLabel">
+        {viewColorScheme ? (
+          <FontAwesomeIcon icon={faEyeSlash} />
+        ) : (
+          <FontAwesomeIcon icon={faEye} />
+        )}
+        {`${viewColorScheme ? " hide" : " view"} color scheme`}
+      </label>
+      {/* Status indicator */}
+      {viewColorScheme ? (
+        <div className="status-indicators">
+          {statusData.map(({ name, color, textColor }) => (
+            <StatusIndicator
+              key={name}
+              name={name}
+              color={color}
+              textColor={textColor}
+            />
+          ))}
+        </div>
+      ) : (
+        ""
+      )}
+      {/* View filters */}
+      <div className="checkboxes">
+        {isSupervisor ? (
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={filter === "createdShifts"}
+              onChange={() => handleCheckboxChange("createdShifts")}
+            />{" "}
+            Supervising Shifts
           </label>
-          {/* Status indicator */}
-          {viewColorScheme ? (
-            <div className="status-indicators">
-              {statusData.map(({ name, color, textColor }) => (
-                <StatusIndicator
-                  key={name}
-                  name={name}
-                  color={color}
-                  textColor={textColor}
-                />
-              ))}
-            </div>
-          ) : (
-            ""
-          )}
-          {/* View filters */}
-          <div className="checkboxes">
-            {isSupervisor ? (
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={filter === "createdShifts"}
-                  onChange={() => handleCheckboxChange("createdShifts")}
-                />{" "}
-                Supervising Shifts
-              </label>
-            ) : (
-              ""
-            )}
+        ) : (
+          ""
+        )}
+        <label className="checkbox-label">
+          <input
+            type="checkbox"
+            checked={filter === "allShifts"}
+            onChange={() => handleCheckboxChange("allShifts")}
+          />{" "}
+          Available Shifts
+        </label>
+        {isSupervisor ? (
+          ""
+        ) : (
+          <div className="checkbox-filters">
             <label className="checkbox-label">
               <input
                 type="checkbox"
-                checked={filter === "allShifts"}
-                onChange={() => handleCheckboxChange("allShifts")}
+                checked={filter === "yourShifts"}
+                onChange={() => handleCheckboxChange("yourShifts")}
               />{" "}
-              Available Shifts
+              your shifts
             </label>
-            {isSupervisor ? (
-              ""
-            ) : (
-              <div className="checkbox-filters">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={filter === "yourShifts"}
-                    onChange={() => handleCheckboxChange("yourShifts")}
-                  />{" "}
-                  your shifts
-                </label>
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={filter === "applications"}
-                    onChange={() => handleCheckboxChange("applications")}
-                  />{" "}
-                  Applications
-                </label>
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={filter === "rota"}
-                    onChange={() => handleCheckboxChange("rota")}
-                  />{" "}
-                  Rota
-                </label>
-              </div>
-            )}
             <label className="checkbox-label">
               <input
                 type="checkbox"
-                checked={showPastShifts}
-                onChange={handleShowPastShiftsChange}
-                className="pastShiftsToggle"
+                checked={filter === "applications"}
+                onChange={() => handleCheckboxChange("applications")}
               />{" "}
-              past shifts
+              Applications
+            </label>
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={filter === "rota"}
+                onChange={() => handleCheckboxChange("rota")}
+              />{" "}
+              Rota
             </label>
           </div>
-          {/*Message on found or not applications */}
-          <h2>
-            {foundCasualWorker ? (
-              <b>{`${foundCasualWorker}'s`} applications</b>
-            ) : (
-              ""
-            )}
-          </h2>
-          {/* visualize Filtered shifts */}
-          {filteredShifts.length > 0 ? (
-            <div className="shift-card-list">
-              {filteredShifts.map((shift) => (
-                <ShiftCard
-                  key={shift.id}
-                  shift={shift}
-                  user={{
-                    firstName: firstName,
-                    supervisor: isSupervisor ? true : false,
-                    id: staffId,
-                  }}
-                  query={isSupervisor ? casualWorkerName : firstName}
-                  casualWorker={isSupervisor ? foundCasualWorker : ""}
-                  updateApplicationStatusMutation={
-                    updateApplicationStatusMutation
-                  }
-                  className={`shift-card  ${
-                    retrieveStyle(shift)
-                      ? retrieveStyle(shift).toLowerCase()
-                      : ""
-                  }`}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className="no-shifts-message">
-              <p>
-                {filter === "rota"
-                  ? "It seems that you either haven't applied to a shift or you haven't been offered one, check all shifts to apply to a shift!"
-                  : `Sorry! It seems you don't have any ${
-                      filter === "applications" ? "Applications" : filter
-                    }.`}
-              </p>
-            </div>
-          )}
-        </>
+        )}
+        <label className="checkbox-label">
+          <input
+            type="checkbox"
+            checked={showPastShifts}
+            onChange={handleShowPastShiftsChange}
+            className="pastShiftsToggle"
+          />{" "}
+          past shifts
+        </label>
+      </div>
+      {/*Message on found or not applications */}
+      <h2>
+        {foundCasualWorker ? (
+          <b>{`${foundCasualWorker}'s`} applications</b>
+        ) : (
+          ""
+        )}
+      </h2>
+      {viewMode === "shift" ? (
+        // Visualize Filtered shifts
+        filteredShifts.length > 0 ? (
+          <div className="shift-card-list">
+            {filteredShifts.map((shift) => (
+              <ShiftCard
+                key={shift.id}
+                shift={shift}
+                user={{
+                  firstName: firstName,
+                  supervisor: isSupervisor ? true : false,
+                  id: staffId,
+                }}
+                query={isSupervisor ? casualWorkerName : firstName}
+                casualWorker={isSupervisor ? foundCasualWorker : ""}
+                updateApplicationStatusMutation={
+                  updateApplicationStatusMutation
+                }
+                className={`shift-card ${
+                  retrieveStyle(shift) ? retrieveStyle(shift).toLowerCase() : ""
+                }`}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="no-shifts-message">
+            <p>
+              {filter === "rota"
+                ? "It seems that you either haven't applied to a shift or you haven't been offered one, check all shifts to apply to a shift!"
+                : `Sorry! It seems you don't have any ${
+                    filter === "applications" ? "Applications" : filter
+                  }.`}
+            </p>
+          </div>
+        )
       ) : (
         <ShiftCalendar user={firstName} data={filteredShifts} />
       )}

@@ -100,8 +100,9 @@ export function Hub() {
       let shiftsToShow = data.getAllShifts;
 
       // Filter past shifts if the "showPastShifts" checkbox is checked
+      // Updated so it includes COMMENCING shifts
       if (!showPastShifts) {
-        shiftsToShow = shiftsToShow.filter((shift) => shift.status === "OPEN");
+        shiftsToShow = shiftsToShow.filter((shift) => shift.status === "OPEN" || shift.status === "COMMENCING");
       }
 
       setAllShifts(shiftsToShow);
@@ -482,7 +483,7 @@ export function Hub() {
           )}
         </>
       ) : (
-        <ShiftCalendar user={user} data={data} />
+        <ShiftCalendar user={firstName} data={filteredShifts} />
       )}
     </div>
   );

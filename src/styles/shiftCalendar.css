@@ -1,0 +1,63 @@
+.Calendar {
+  max-width: 100%;
+  height: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #ffffff;
+}
+
+.rbc-calendar {
+  width: 100%;
+  height: 100%;
+  border: 1px solid #ddd; /* Add border for better visibility */
+}
+
+.rbc-header {
+  background-color: #f0f0f0;
+  border-bottom: 1px solid #ddd;
+}
+
+.rbc-month-view {
+  width: 100%;
+}
+
+.rbc-event.green {
+  background-color: #28a745; /* Green color for OPEN shifts */
+}
+
+.rbc-event.blue {
+  background-color: #007bff; /* Blue color for COMMENCING shifts */
+}
+
+.rbc-event.grey {
+  background-color: #6c757d; /* Grey color for CLOSED shifts */
+}
+
+.rbc-event.black {
+  background-color: #000; /* Black color for CONCLUDED shifts */
+}
+
+/* Default styles for RBC events */
+.rbc-event {
+  border-radius: 4px;
+  padding: 2px 5px;
+  margin-bottom: 5px;
+  color: #fff; /* Event text color */
+}
+
+/* Styles for big screens (horizontal layout) */
+@media screen and (min-width: 768px) {
+  .rbc-event {
+    display: inline-block; /* Display events horizontally */
+    margin-right: 5px; /* Add spacing between events */
+  }
+}
+
+/* Styles for small screens (vertical layout) */
+@media screen and (max-width: 767px) {
+  .rbc-event {
+    display: block; /* Display events vertically */
+    margin-right: 0; /* Remove right margin */
+    margin-bottom: 5px; /* Add spacing between events */
+  }
+}

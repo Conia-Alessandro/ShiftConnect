@@ -62,7 +62,7 @@
     height: 60px;
 }
 
-/* Styles for big screens (horizontal layout) */
+/* Styles for big screens (horizontal) */
 @media screen and (min-width: 768px) {
   .rbc-event {
     display: inline-block; /* Display events horizontally */
@@ -70,7 +70,7 @@
   }
 }
 
-/* Styles for small screens (vertical layout) */
+/* Styles for small screens (vertical) */
 @media screen and (max-width: 767px) {
   .rbc-event {
     display: block; /* Display events vertically */

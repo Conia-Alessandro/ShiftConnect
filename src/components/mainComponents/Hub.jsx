@@ -12,6 +12,7 @@ import StatusIndicator from "../informationalComponents/StatusIndicator";
 import ShiftCalendar from "../informationalComponents/ShiftCalendar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import ShiftCreator from "../informationalComponents/ShiftCreator";
 
 // Loading component
 const LoadingSpinner = () => {
@@ -34,6 +35,7 @@ export function Hub() {
 
   const [user, setUser] = useState("");
   const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [allShifts, setAllShifts] = useState([]);
   const [filter, setFilter] = useState(
     isSupervisor ? "createdShifts" : "allShifts"
@@ -81,8 +83,12 @@ export function Hub() {
    */
   useEffect(() => {
     if (user) {
-      setFirstName(splitStringBySpace(user).name);
-      //setFirstName(splitStringBySpace("Grim Saint").name);
+      //const { name, surname, extra } = splitStringBySpace(user);
+      const {name, surname, extra} = splitStringBySpace("Grim Saint III");
+      setFirstName(name);
+
+      //Set last name, will be used for shifts
+      setLastName(surname);
     }
   }, [user]);
   /**
@@ -328,6 +334,18 @@ export function Hub() {
         >
           CALENDAR VIEW
         </button>
+        {isSupervisor ? (
+          <button
+            onClick={() => toggleViewMode("shiftCreator")}
+            className={`toggleBtn ${
+              viewMode === "shiftCreator" ? "selected" : ""
+            }`}
+          >
+            SHIFT CREATOR
+          </button>
+        ) : (
+          ""
+        )}
       </div>
       {/* supervisor controls */}
       {isSupervisor && (
@@ -481,8 +499,17 @@ export function Hub() {
             </p>
           </div>
         )
-      ) : (
+      ) : viewMode === "calendar" ? (
         <ShiftCalendar user={firstName} data={filteredShifts} />
+      ) : (
+        <ShiftCreator
+          user={{
+            firstName: firstName,
+            lastName: lastName,
+          }}
+          data={filteredShifts}
+          casualWorker={foundCasualWorker}
+        />
       )}
     </div>
   );

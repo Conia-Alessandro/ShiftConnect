@@ -1,0 +1,94 @@
+.disabled {
+  display: none;
+}
+.enabled {
+  display: block;
+  cursor: pointer;
+}
+
+.time-picker {
+  display: flex;
+  flex-direction: column;
+}
+
+.period-selection {
+  display: flex;
+  align-items: center;
+}
+
+.sun-icon {
+  color: yellow;
+  margin-right: 5px;
+}
+
+.moon-icon {
+  color: darkgoldenrod; /* or white */
+  margin-right: 5px;
+}
+
+/* Additional CSS styles for radio buttons */
+.time-selector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.time-inputs {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+}
+.input-group:nth-child(1){
+    background-color: azure;
+}
+.input-group:nth-child(2){
+    background-color: darkmagenta;
+    color: white;
+}
+
+.input-group label {
+  margin-right: 10px;
+}
+
+.period-selection {
+  display: flex;
+  align-items: center;
+}
+
+.period-selection input[type="radio"] {
+  margin-right: 5px;
+}
+li {
+  cursor: pointer;
+}
+
+.shiftCreation {
+  background-color: #ffffff; /* White background */
+  border-radius: 10px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Box shadow for depth */
+  padding: 20px; /* Padding inside the card */
+  max-width: 600px; /* Maximum width of the card */
+  width: 90%; /* Responsive width */
+  margin-top: 20px; /* Top margin */
+}
+
+.shiftCreation div{
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.applicationForm {
+  margin-top: 20px; /* Add margin between shift creation and application form */
+}
+
+/* Media query for responsiveness */
+@media screen and (max-width: 768px) {
+  .shiftCreation {
+    max-width: 90%;
+  }
+}

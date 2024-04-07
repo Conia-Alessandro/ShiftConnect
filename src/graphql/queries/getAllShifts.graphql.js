@@ -53,6 +53,7 @@ query GetAllShifts {
     totalApplications
     postedAt
     deadLine
+    createdBy
   }
 }
 `;

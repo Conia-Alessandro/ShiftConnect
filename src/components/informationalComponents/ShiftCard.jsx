@@ -262,7 +262,7 @@ const ShiftCard = ({ shift, user, casualWorker, updateApplicationStatus }) => {
           Applications{" "}
         </p>
         {/* If there's no user application and the shift expired */}
-        {!userApplication && isShiftExpired && (
+        {!userApplication && isShiftExpired && casualWorker.trim()!=="" && (
           <p>
             <FontAwesomeIcon icon={faTimes} />{" "}
             {user.supervisor ? casualWorker : "You"} did not apply for this

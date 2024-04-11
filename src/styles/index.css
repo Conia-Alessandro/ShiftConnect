@@ -1,6 +1,9 @@
 * {
   box-sizing: border-box;
 }
+label, h3, b{
+  color:white;
+}
 
 body {
   margin: 0;

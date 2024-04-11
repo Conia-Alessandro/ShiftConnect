@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@apollo/client";
 import React, { useState, useEffect } from "react";
+
 import CREATE_SHIFT from "../../graphql/mutations/createShift.graphql";
 import GET_ALL_STAFF from "../../graphql/queries/getAllStaff.graphql";
 import CREATE_NEW_APPLICATION from "../../graphql/mutations/createApplication.graphql";
@@ -10,9 +11,11 @@ import {
   faMinus,
   faSun,
   faMoon,
+  faCalendar,
 } from "@fortawesome/free-solid-svg-icons";
 // Style
 import "../../styles/shiftCreator.css";
+
 import sanitizeInput from "../../utils/inputSanitizer";
 
 const ShiftCreator = ({ user, casualWorker, data }) => {
@@ -38,7 +41,7 @@ const ShiftCreator = ({ user, casualWorker, data }) => {
     const day = today.getDate().toString().padStart(2, "0");
     const month = (today.getMonth() + 1).toString().padStart(2, "0");
     const year = today.getFullYear();
-    return `${day}/${month}/${year}`;
+    return `${year}-${month}-${day}`;
   };
 
   // Function to get tomorrow's date in DD/MM/YYYY format (uk then to US on mongodb)
@@ -48,13 +51,14 @@ const ShiftCreator = ({ user, casualWorker, data }) => {
     const day = tomorrow.getDate().toString().padStart(2, "0");
     const month = (tomorrow.getMonth() + 1).toString().padStart(2, "0");
     const year = tomorrow.getFullYear();
-    return `${day}/${month}/${year}`;
+    return `${year}-${month}-${day}`;
   };
 
   /* Defining the graphql mutation and its requirements */
   /* default times are 8 and 10 respectively */
   const [createShift] = useMutation(CREATE_SHIFT);
   const [formData, setFormData] = useState({
+    name: "",
     brief: "",
     commence: 8,
     conclusion: 10,
@@ -149,8 +153,9 @@ const ShiftCreator = ({ user, casualWorker, data }) => {
   // Check if the required inputs are being inputted by the user
   useEffect(() => {
     if (
-      formData.brief !== "" &&
-      formData.reference !== "" &&
+      formData.name.trim() !== "" &&
+      formData.brief.trim() !== "" &&
+      formData.reference.trim() !== "" &&
       formData.brief.length > 5 &&
       formData.reference.length > 3
     ) {
@@ -158,7 +163,7 @@ const ShiftCreator = ({ user, casualWorker, data }) => {
     } else {
       setValidInput(false);
     }
-  }, [formData.brief, formData.reference]);
+  }, [formData.brief, formData.reference, formData.name]);
   //Add use State for minute selector (if > 30 min ok otherwise not ok )
   // and implement logic for if minutes > 60 then +1 hour in commence / conclusion if minutes - 0 then -1 hour in commence / conclusion
 
@@ -190,12 +195,17 @@ const ShiftCreator = ({ user, casualWorker, data }) => {
   const constructFormDataJSON = () => {
     const formDataJSON = {
       input: {
+        name: formData.name,
         brief: formData.brief,
-        commence: `${formData.commence}:${commenceMinutes === 0 ? "00" : commenceMinutes}${startPeriodAM ? "AM" : "PM"}`,
-        conclusion: `${formData.conclusion}:${endMinutes === 0 ? "00" : endMinutes}${endPeriodAM ? "AM" : "PM"}`,
-        date: formatDate(formData.date),
+        commence: `${formData.commence}:${
+          commenceMinutes === 0 ? "00" : commenceMinutes
+        }${startPeriodAM ? "AM" : "PM"}`,
+        conclusion: `${formData.conclusion}:${
+          endMinutes === 0 ? "00" : endMinutes
+        }${endPeriodAM ? "AM" : "PM"}`,
+        date: formatDateInput(formData.date),
         reference: formData.reference,
-        deadLine: formatDate(formData.deadLine),
+        deadLine: formatDateInput(formData.deadLine),
         createdBy: createdBy,
       },
     };
@@ -215,12 +225,17 @@ const ShiftCreator = ({ user, casualWorker, data }) => {
 
     try {
       const formDataJSON = {
+        name: formData.name,
         brief: formData.brief,
-        commence: `${formData.commence}${startPeriodAM ? "AM" : "PM"}`,
-        conclusion: `${formData.conclusion}${endPeriodAM ? "AM" : "PM"}`,
-        date: formatDate(formData.date),
+        commence: `${formData.commence}:${
+          commenceMinutes === 0 ? "00" : commenceMinutes
+        }${startPeriodAM ? "AM" : "PM"}`,
+        conclusion: `${formData.conclusion}:${
+          endMinutes === 0 ? "00" : endMinutes
+        }${endPeriodAM ? "AM" : "PM"}`,
+        date: formatDateInput(formData.date),
         reference: formData.reference,
-        deadLine: formatDate(formData.deadLine),
+        deadLine: formatDateInput(formData.deadLine),
         createdBy: createdBy,
       };
       const { data } = await createShift({
@@ -295,6 +310,7 @@ const ShiftCreator = ({ user, casualWorker, data }) => {
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
   };
+  // Function to return date in YYYY-MM-DD
   const formatDateInput = (dateString) => {
     const date = new Date(dateString);
     const day = date.getDate().toString().padStart(2, "0");
@@ -370,6 +386,32 @@ const ShiftCreator = ({ user, casualWorker, data }) => {
       </ul>
     );
   };
+  // Increment and decrement functions for hours
+  const handleHourChange = (field, change) => {
+    setFormData((prevData) => {
+      const newHour = ((prevData[field] - 1 + change + 12) % 12) + 1; // Ensures wrapping from 12 back to 1
+      return {
+        ...prevData,
+        [field]: newHour,
+      };
+    });
+  };
+
+  // Adjustments to handleInputChange to handle numeric input directly
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "commence" || name === "conclusion") {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: Math.max(1, Math.min(12, parseInt(value) || prevData[name])), // Ensures values stay within 1-12
+      }));
+    } else {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
+  };
 
   const handleConditionChange = (event) => {
     setApplicationComment(event.target.value.trim());
@@ -385,11 +427,15 @@ const ShiftCreator = ({ user, casualWorker, data }) => {
     if (foundCasualWorker) {
       casualWorkerId = foundCasualWorker.id;
     }
+    const supervisorIds = selectedSupervisors.map(
+      (supervisor) => supervisor.id
+    );
+
     //create the application object
     const applicationData = {
       shiftId: shiftId,
       casualWorkerId: casualWorkerId,
-      supervisorsIds: selectedSupervisors,
+      supervisorsIds: supervisorIds,
       input: {
         applicationStatus: applicationStatus,
       },
@@ -410,6 +456,16 @@ const ShiftCreator = ({ user, casualWorker, data }) => {
   return (
     <div className="shiftCreation">
       <form className="createShiftForm " onSubmit={handleSubmit}>
+        <label>the shifts name: </label>
+        <input
+          type="text"
+          name="name"
+          placeholder="the shift's name"
+          value={formData.name}
+          onChange={handleChange}
+          required
+        />
+        <label>Brief: </label>
         <input
           type="text"
           name="brief"
@@ -421,18 +477,33 @@ const ShiftCreator = ({ user, casualWorker, data }) => {
         <div className="time-selector">
           <div className="time-inputs">
             <div className="input-group">
+              <FontAwesomeIcon icon={faCalendar} />
               <label>Commence:</label>
               {/*Hours, Minutes and AM/PM */}
+              <button
+                type="button"
+                onClick={() => handleHourChange("commence", -1)}
+              >
+                <FontAwesomeIcon icon={faMinus} />
+              </button>
               <input
                 type="number"
-                min={1}
-                max={12}
+                name="commence"
                 value={formData.commence}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 required
               />
+              <button
+                type="button"
+                onClick={() => handleHourChange("commence", 1)}
+              >
+                <FontAwesomeIcon icon={faPlus} />
+              </button>
               <div className="minute-controls">
-                <button onClick={() => handleDecrement("commenceMinutes")}>
+                <button
+                  type="button"
+                  onClick={() => handleDecrement("commenceMinutes")}
+                >
                   <FontAwesomeIcon icon={faMinus} />
                 </button>
                 <input
@@ -440,7 +511,10 @@ const ShiftCreator = ({ user, casualWorker, data }) => {
                   value={commenceMinutes}
                   onChange={(e) => setCommenceMinutes(parseInt(e.target.value))}
                 />
-                <button onClick={() => handleIncrement("commenceMinutes")}>
+                <button
+                  type="button"
+                  onClick={() => handleIncrement("commenceMinutes")}
+                >
                   <FontAwesomeIcon icon={faPlus} />
                 </button>
               </div>
@@ -463,18 +537,38 @@ const ShiftCreator = ({ user, casualWorker, data }) => {
                 <label htmlFor="pm">PM</label>
               </div>
             </div>
+            <div>
+              <br></br>
+            </div>
             <div className="input-group">
+              <FontAwesomeIcon icon={faCalendar} />
               <label>Conclusion:</label>
+              <button
+                type="button"
+                onClick={() => handleHourChange("conclusion", -1)}
+              >
+                <FontAwesomeIcon icon={faMinus} />
+              </button>
               <input
                 type="number"
+                name="conclusion"
                 min={1}
                 max={12}
                 value={formData.conclusion}
-                onChange={handleChange}
+                onChange={handleInputChange}
                 required
               />
+              <button
+                type="button"
+                onClick={() => handleHourChange("conclusion", 1)}
+              >
+                <FontAwesomeIcon icon={faPlus} />
+              </button>
               <div className="minute-controls">
-                <button onClick={() => handleDecrement("endMinutes")}>
+                <button
+                  type="button"
+                  onClick={() => handleDecrement("endMinutes")}
+                >
                   <FontAwesomeIcon icon={faMinus} />
                 </button>
                 <input
@@ -482,7 +576,10 @@ const ShiftCreator = ({ user, casualWorker, data }) => {
                   value={endMinutes}
                   onChange={(e) => setEndMinutes(parseInt(e.target.value))}
                 />
-                <button onClick={() => handleIncrement("endMinutes")}>
+                <button
+                  type="button"
+                  onClick={() => handleIncrement("endMinutes")}
+                >
                   <FontAwesomeIcon icon={faPlus} />
                 </button>
               </div>
@@ -546,11 +643,21 @@ const ShiftCreator = ({ user, casualWorker, data }) => {
             required
           />
         </div>
-        {requireMinutesDiff || !validInput ?(
-            <div>
-                <span>Almost there, fill out the rest of the information to be able to create the shift</span>
-            </div>
-        ):""}
+        {requireMinutesDiff || !validInput ? (
+          <div>
+            <span>
+              Almost there, fill out the rest of the information to be able to
+              create the shift
+            </span>
+          </div>
+        ) : (
+          ""
+        )}
+        {validInput && (
+          <div>
+            <br></br>
+          </div>
+        )}
         <button
           type="submit"
           className={requireMinutesDiff || !validInput ? "disabled" : "enabled"}
@@ -562,7 +669,10 @@ const ShiftCreator = ({ user, casualWorker, data }) => {
         <div>
           <h2>Create an Application for {casualWorker} ?</h2>
           {/* Toggle button for showing/hiding application form */}
-          <button onClick={() => setShowApplicationForm(!showApplicationForm)}>
+          <button
+            type="button"
+            onClick={() => setShowApplicationForm(!showApplicationForm)}
+          >
             {showApplicationForm
               ? "No, hide the form"
               : "Yes, show me the form"}

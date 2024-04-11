@@ -1,9 +1,9 @@
 import { useQuery, useMutation } from "@apollo/client";
 import GET_ALL_SHIFTS from "../../graphql/queries/getAllShifts.graphql";
-import GET_STAFF_BY_NAME from "../../graphql/queries/getStaffByName.graphql";
 import "../../styles/hub.css";
 import ShiftCard from "../informationalComponents/ShiftCard";
 import UPDATE_APPLICATION_STATUS from "../../graphql/mutations/updateApplicationStatus.graphql";
+import GET_ALL_STAFF from "../../graphql/queries/getAllStaff.graphql";
 import { useContext, useEffect, useState } from "react";
 import { TeamsFxContext } from "../Context"; // Assuming you have a file named TeamsFxContext.js where you define this context.
 import splitStringBySpace from "../../utils/stringSplitter";
@@ -13,7 +13,8 @@ import ShiftCalendar from "../informationalComponents/ShiftCalendar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import ShiftCreator from "../informationalComponents/ShiftCreator";
-
+import statusData from "../informationalComponents/statusData";
+import UPDATE_SHIFT_STATUSES from "../../graphql/mutations/updateShiftsStatuses.graphql";
 // Loading component
 const LoadingSpinner = () => {
   return (
@@ -30,6 +31,7 @@ export function Hub() {
 
   const [isSupervisor, setIsSupervisor] = useState(false);
   const [staffId, setStaffId] = useState("");
+  const [casualWorkerId, setCasualWorkerId] = useState("");
   const [casualWorkerName, setCasualWorkerName] = useState("");
   const [foundCasualWorker, setFoundCasualWorker] = useState("");
 
@@ -43,10 +45,6 @@ export function Hub() {
   const [showPastShifts, setShowPastShifts] = useState(false);
   const [viewColorScheme, setViewColorScheme] = useState(false);
 
-  const [userLoading, setUserLoading] = useState(true);
-  const [userError, setUserError] = useState(null);
-  const [userData, setUserData] = useState(null);
-
   const [filteredShifts, setFilteredShifts] = useState([]);
 
   const [loadingQueryCasualWorker, setLoadingQueryCasualWorker] =
@@ -54,18 +52,15 @@ export function Hub() {
 
   const [viewMode, setViewMode] = useState("shift");
 
-  const statusData = [
-    { name: "Open", color: "lightblue" },
-    { name: "Applied", color: "pink" },
-    { name: "Offered", color: "#007bff" },
-    { name: "Pending", color: "orange" },
-    { name: "Assigned", color: "green" },
-    { name: "Commencing", color: "limegreen" },
-    { name: "Rejected", color: "red" },
-    { name: "Turned Down", color: "brown" },
-    { name: "Closed", color: "grey", textColor: "white" },
-    { name: "Concluded", color: "black", textColor: "white" },
-  ];
+  const [staffData, setStaffData] = useState([]);
+  const [casualStaffData, setCasualStaffData] = useState([]);
+
+  // Mutation to return new shifts
+  const [updateAllShiftsAndReturn, { loadingNewShifts, errorNewShifts }] =
+    useMutation(UPDATE_SHIFT_STATUSES);
+  // loading on new shifts
+  const [isLoading, setIsLoading] = useState(false);
+
   /**
    * 1 : Retrieve User credential and set the user to the Retrieved "Displayed Name" (unique to MS teams account)
    * Example: Grim Saint III
@@ -84,13 +79,72 @@ export function Hub() {
   useEffect(() => {
     if (user) {
       //const { name, surname, extra } = splitStringBySpace(user);
-      const {name, surname, extra} = splitStringBySpace("Grim Saint III");
+      const { name, surname, extra } = splitStringBySpace("Grim Saint III");
       setFirstName(name);
 
       //Set last name, will be used for shifts
       setLastName(surname);
     }
   }, [user]);
+
+  // Update the graphql Shift database:
+  const updateAllShifts = () => {
+    setIsLoading(true); // Start loading
+
+    // Simulate a network request or some async operation
+    updateAllShiftsAndReturn()
+      .then(({ data }) => {
+        console.log("Mutation completed:", data);
+
+        // Spinner shows for at least 2 seconds
+        setTimeout(() => {
+          setIsLoading(false); // Stop loading
+        }, 2000);
+      })
+      .catch((error) => {
+        console.error("Error executing mutation:", error);
+        setIsLoading(false); // Stop loading in case of error
+      });
+  };
+
+  // Get all instead of calling api later
+
+  const { loading: StaffLoading, error: StaffError, data: StaffData } = useQuery(GET_ALL_STAFF);
+  /**
+   * 2.5: set staff and casualWorker data
+   */
+  useEffect(() => {
+    console.log(`values: ${StaffData} , ${firstName} , ${lastName}`);
+    if (StaffData && firstName && lastName) {
+      let supervisingStaff = StaffData.getAllStaff.filter(
+        (staff) => staff.supervisor === true
+      );
+      setStaffData(supervisingStaff);
+      let casualWorkingStaff = StaffData.getAllStaff.filter(
+        (staff) => staff.supervisor === false
+      );
+      setCasualStaffData(casualWorkingStaff);
+      // Check if the current user is a supervisor
+      const fullName = `${firstName} ${lastName}`.toLowerCase();
+
+      const supervisorUser = StaffData.getAllStaff.some(staff => 
+        staff.supervisor === true && 
+        `${staff.name} ${staff.surname}`.toLowerCase() === fullName
+      );
+      // Update isSupervisor based on the result
+      console.log(`Result`);
+      setIsSupervisor(supervisorUser);
+
+      // If the user is a supervisor, set their ID
+      if (supervisorUser) {
+        setStaffId(supervisorUser.id);
+      } else {
+        // If the user is not a supervisor, reset supervisor ID
+        setStaffId("");
+      }
+    }
+  }, [StaffData, firstName, lastName]);
+
   /**
    * 3: Call the Get All shift query through Apollo client, save the statuses
    * loading: false, error: false, data : {Object}
@@ -104,11 +158,13 @@ export function Hub() {
    */
   useEffect(() => {
     if (data) {
+      // set the shifts to show to ALL shifts
       let shiftsToShow = data.getAllShifts;
 
       // Filter past shifts if the "showPastShifts" checkbox is checked
       // Updated so it includes COMMENCING shifts
       if (!showPastShifts) {
+        // set shifts to show to filtered one (the open / commencing ones)
         shiftsToShow = shiftsToShow.filter(
           (shift) => shift.status === "OPEN" || shift.status === "COMMENCING"
         );
@@ -117,86 +173,55 @@ export function Hub() {
       setAllShifts(shiftsToShow);
     }
   }, [data, showPastShifts]);
+
   /**
-   * 5: Gather GRAPHQL data based on the FirstName
-   * store the result
-   */
-  const {
-    loading: userLoadingQuery,
-    error: userErrorQuery,
-    data: userDataQuery,
-  } = useQuery(GET_STAFF_BY_NAME, {
-    variables: { name: firstName },
-  });
-  /**
-   * 6: If data is found, set it  to later view it
+   * 5: Gather all shifts where the supervisor is concerned with.
    */
   useEffect(() => {
-    setUserLoading(userLoadingQuery);
-    setUserError(userErrorQuery);
-    if (userDataQuery) {
-      setUserData(userDataQuery);
+    if (allShifts) {
+      let updatedFilteredShifts = allShifts;
+      if (isSupervisor) {
+        console.log(
+          `${firstName}${
+            isSupervisor ? "is a supervisor" : "is not a supervisor"
+          }`
+        );
+        updatedFilteredShifts = allShifts.filter((shift) =>
+          shift.applications.some((application) =>
+            application.supervisors.includes(firstName)
+          )
+        );
+      }
+      setFilteredShifts(updatedFilteredShifts); // Create a new state variable for filtered shifts
     }
-  }, [userLoadingQuery, userErrorQuery, userDataQuery]);
+  }, [isSupervisor, allShifts, firstName]);
   /**
-   * 7: Store user data information such as StaffId and IsSupervisor
-   * used to render cards
+   * 6: if the user is a supervisor, and a new cassualWorkerName has been provided, then try to find it.
+   * if it's found, loading stops and this allows the next step to take place
    */
   useEffect(() => {
-    if (userData) {
-      console.log("user data", userData);
-      setIsSupervisor(userData.getStaffByName[0].supervisor);
-      setStaffId(userData.getStaffByName[0].id);
-    }
-  }, [userData]);
-  /**
-   * 8: Debug and update of shifts
-   * filtered shifts for supervisors should include only the ones where they are present to "Assign" applicants
-   */
-  useEffect(() => {
-    console.log("First Name:", firstName);
-    console.log("Is Supervisor:", isSupervisor);
-    let updatedFilteredShifts = allShifts;
     if (isSupervisor) {
-      updatedFilteredShifts = allShifts.filter((shift) =>
-        shift.applications.some((application) =>
-          application.supervisors.includes(firstName)
-        )
-      );
+      if (
+        casualWorkerName.trim() !== "" ||
+        casualWorkerName === foundCasualWorker
+      ) {
+        const casualWorker = casualStaffData.find(
+          (staff) => staff.name === casualWorkerName
+        );
+        if (casualWorker) {
+          console.log(`The Casual Worker name is ${casualWorker.name}`);
+          setFoundCasualWorker(casualWorker.name);
+          setCasualWorkerId(casualWorker.id);
+          setLoadingQueryCasualWorker(false);
+        } else {
+          setLoadingQueryCasualWorker(true);
+        }
+      }
     }
-    setFilteredShifts(updatedFilteredShifts); // Create a new state variable for filtered shifts
-  }, [filter, isSupervisor, allShifts, firstName]);
-
-  // If supervisor, find the Casual worker
-  // Do not repeat the query if the name is the same or the name is just spaces
-  const {
-    loading: loadingCW,
-    error: errorCW,
-    data: dataCW,
-  } = useQuery(GET_STAFF_BY_NAME, {
-    variables: { name: casualWorkerName },
-    skip:
-      !isSupervisor ||
-      casualWorkerName.trim() === "" ||
-      casualWorkerName === foundCasualWorker,
-  });
+  }, [isSupervisor, casualWorkerName, foundCasualWorker, casualStaffData]);
 
   /**
-   * 8.5: If i found a casual worker, set it.
-   */
-  useEffect(() => {
-    if (loadingCW) {
-      setLoadingQueryCasualWorker(true);
-    }
-    if (dataCW && dataCW.getStaffByName.length > 0) {
-      console.log(`The Casual Worker name is ${dataCW.getStaffByName[0].name}`);
-      setFoundCasualWorker(dataCW.getStaffByName[0].name);
-      setLoadingQueryCasualWorker(false);
-    }
-  }, [dataCW, loadingCW, errorCW]);
-
-  /**
-   * 9: updates the filtered shifts if the filter changed
+   * 7: updates the filtered shifts if the filter changed
    * is triggered by the dependencies
    */
   useEffect(() => {
@@ -206,13 +231,18 @@ export function Hub() {
       switch (filter) {
         case "createdShifts":
           // Check if the user is a supervisor before applying the filter
-          localShifts = isSupervisor
-            ? allShifts.filter((shift) =>
-                shift.applications.some((application) =>
-                  application.supervisors.includes(firstName)
-                )
+          localShifts = allShifts.filter(
+            (shift) => shift.createdBy === `${firstName}_${lastName}`
+          );
+          break;
+        case "coveringShifts":
+          localShifts = allShifts.filter((shift) =>
+            shift.applications.some((application) =>
+              application.supervisors.some(
+                (supervisor) => supervisor.name === firstName
               )
-            : allShifts;
+            )
+          );
           break;
         case "yourShifts":
           // Filter shifts where the user is the casual worker
@@ -250,7 +280,7 @@ export function Hub() {
       localShifts = allShifts;
     }
     setFilteredShifts(localShifts); // Update filteredShifts state with the localShifts
-  }, [filter, isSupervisor, allShifts, firstName]);
+  }, [filter, isSupervisor, allShifts, firstName, lastName]);
 
   const [updateApplicationStatusMutation] = useMutation(
     UPDATE_APPLICATION_STATUS
@@ -301,15 +331,6 @@ export function Hub() {
       </div>
     );
   }
-  // Check if user data is still loading
-  if (userLoading) {
-    return <p>Loading user data...</p>;
-  }
-
-  // Check if there's an error fetching user data
-  if (userError) {
-    return <p>Error fetching user data: {userError.message}</p>;
-  }
   // Function to handle toggle button click for the calendar
   const toggleViewMode = (mode) => {
     setViewMode(mode);
@@ -321,6 +342,16 @@ export function Hub() {
       <div className="header-container">
         <h1>{`${isSupervisor ? "Supervisor" : "Applicant"} Hub`}</h1>
         <h3>{`Welcome back ${firstName}`}</h3>
+        <div>
+        <button
+        type="button"
+        onClick={updateAllShifts}
+        disabled={isLoading}
+        className={isLoading ? "loading-button" : ""}
+      >
+        {isLoading ? <div className="spinner"></div> : "Update All Shifts"}
+      </button>
+        </div>
         {/* Toggle button for the choice of shift / calendar */}
         <button
           onClick={() => toggleViewMode("shift")}
@@ -397,14 +428,24 @@ export function Hub() {
       {/* View filters */}
       <div className="checkboxes">
         {isSupervisor ? (
-          <label className="checkbox-label">
-            <input
-              type="checkbox"
-              checked={filter === "createdShifts"}
-              onChange={() => handleCheckboxChange("createdShifts")}
-            />{" "}
-            Supervising Shifts
-          </label>
+          <div className="checkbox-filters">
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={filter === "createdShifts"}
+                onChange={() => handleCheckboxChange("createdShifts")}
+              />{" "}
+              Supervising Shifts
+            </label>
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={filter === "coveringShifts"}
+                onChange={() => handleCheckboxChange("coveringShifts")}
+              />{" "}
+              Shifts where i'm covering
+            </label>
+          </div>
         ) : (
           ""
         )}
@@ -479,6 +520,7 @@ export function Hub() {
                 }}
                 query={isSupervisor ? casualWorkerName : firstName}
                 casualWorker={isSupervisor ? foundCasualWorker : ""}
+                casualWorkerId={casualWorkerId}
                 updateApplicationStatusMutation={
                   updateApplicationStatusMutation
                 }

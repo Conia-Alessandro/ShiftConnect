@@ -15,14 +15,19 @@ import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 //style
 import "../../styles/shiftCard.css";
 import createNewApplication from "../../hooks/createNewApplication";
+import findDeadlineStyle from "../../utils/findDeadline";
 /**
  *
  * @param {Object,Object,String,mutation} query was not needed anymore
  * @returns
  */
-const ShiftCard = ({ shift, user, casualWorker, updateApplicationStatus }) => {
-  // debug constants
-  const debug = false;
+const ShiftCard = ({
+  shift,
+  user,
+  casualWorker,
+  casualWorkerId,
+  updateApplicationStatus,
+}) => {
   //calculate difference in days between deadline and shiftdate
   /**
    * Function to get the date elements
@@ -36,49 +41,6 @@ const ShiftCard = ({ shift, user, casualWorker, updateApplicationStatus }) => {
     const year = parseInt(dateParts[2], 10); // Parse year as integer
     return { year, month, day };
   };
-  let dateComponents;
-  const todaysDate = new Date();
-
-  dateComponents = getDateElements(shift.deadLine);
-  const deadLineDate = new Date(
-    dateComponents.year,
-    dateComponents.month,
-    dateComponents.day
-  );
-  console.log("DeadLine Date:", shift.deadLine);
-  const timeDiff = deadLineDate.getTime() - todaysDate.getTime();
-  const diffInDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
-  if (debug) {
-    console.log(`diff in days for ${shift.brief} is ${diffInDays}`);
-  }
-  /**
-   * Helper function to find the style based on the number of days left
-   * @param {Number} days the number of days before the deadline
-   * @returns
-   */
-  const findDeadlineStyle = (days) => {
-    let style;
-    if (shift.status === "CONCLUDED" || shift.status === "COMMENCING") {
-      return "concluded";
-    }
-
-    const stylesMap = {
-      0: "red",
-      1: "red",
-      2: "darkOrange",
-      3: "orange",
-      4: "orange",
-      5: "orange",
-      6: "orange",
-    };
-
-    style = stylesMap[days] || "green";
-    return style;
-  };
-  let deadLineStyle = findDeadlineStyle(diffInDays);
-
-  // Check if the current date is greater than or equal to the deadline date
-  const isShiftExpired = todaysDate >= deadLineDate;
   // useStates for the card
   const [selectedApplication, setSelectedApplication] = useState(null);
   const [selectedAnApplication, setSelectedAnApplication] = useState(false);
@@ -88,12 +50,17 @@ const ShiftCard = ({ shift, user, casualWorker, updateApplicationStatus }) => {
   const [selectedStatus, setSelectedStatus] = useState("");
 
   const [selectedRequest, setSelectedRequest] = useState(false);
-  const [currentSupervisorId, setCurrentSupervisorId] = useState("");
-  const [casualWorkerId, setCasualWorkerId] = useState("");
+  const currentSupervisorId = user.id;
 
   const [conditionalOffer, setConditionalOffer] = useState(false);
   const [conditions, setConditions] = useState("");
   const [offeredStatus, setOfferedStatus] = useState("OFFERED");
+
+  const [showBrief, setShowBrief] = useState(false);
+  const [styleChanged, setStyleChanged] = useState(false);
+
+  const [deadLineStyle, setDeadlineStyle] = useState("");
+  const [isShiftExpired, setIsShiftExpired] = useState(false);
 
   // Check if the user has applied for this shift and get the application, retrieves true or false
   const userApplication = shift.applications
@@ -107,14 +74,28 @@ const ShiftCard = ({ shift, user, casualWorker, updateApplicationStatus }) => {
       }
     })
     .shift(); // Take the first element from the filtered array
-
-  /**
-   * 1: if an user application has been found, apply its style and set a few useStates
-   * Requires: userApplication
-   */
+  // Define todaysDate outside useEffect
+  const todaysDate = new Date();
+  console.log("this should only run once");
   useEffect(() => {
-    if (userApplication) {
-      // shift.status could be OPEN, COMMENCING, CLOSED , CONCLUDED
+    let dateComponents = getDateElements(shift.deadLine);
+    const deadLineDate = new Date(
+      dateComponents.year,
+      dateComponents.month,
+      dateComponents.day
+    );
+
+    const timeDiff = deadLineDate.getTime() - todaysDate.getTime();
+    const diffInDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+    console.log(`diff in days for ${shift.brief} is ${diffInDays}`);
+
+    setDeadlineStyle(findDeadlineStyle(shift, diffInDays));
+    setIsShiftExpired(todaysDate >= deadLineDate);
+  });
+
+  useEffect(() => {
+    if (userApplication && !styleChanged) {
       setCardClass(
         getCardClass(
           shift.status === "OPEN" || shift.status === "COMMENCING"
@@ -122,18 +103,11 @@ const ShiftCard = ({ shift, user, casualWorker, updateApplicationStatus }) => {
             : shift.status
         )
       );
-      const { id: casualWorkerId, name: casualWorkerName } =
-        userApplication.casualWorker;
-      setCasualWorkerId(casualWorkerId);
-      console.log(`applicant name is ${casualWorkerName}`); // Log inside the useEffect
-      setCurrentSupervisorId(user.id);
-    } else {
-      //user hasn't applied to that shift, so the shift is either open or closed
-      setCasualWorkerId("");
-      console.log(`shift status = ${shift.status}`);
-      setCardClass(getCardClass(shift.status));
+      setStyleChanged(true);
+    } else if (!styleChanged) {
+      setStyleChanged(true);
     }
-  }, [userApplication, shift, user, currentSupervisorId]);
+  });
 
   const handleUpdateApplication = () => {
     setSelectedAnApplication(!selectedAnApplication);
@@ -184,14 +158,14 @@ const ShiftCard = ({ shift, user, casualWorker, updateApplicationStatus }) => {
     setComment(event.target.value);
   };
 
-  const handleConditionChange = (event) =>{
+  const handleConditionChange = (event) => {
     setConditions(event.target.value);
-  }
+  };
   // The offer chosen by the supervisor for a casual worker , if it's pending it sets conditional offer to true.
   const handleOfferChange = (event) => {
     console.log(`chosen ${event.target.value}`);
     //either true or false , if a conditional offer is chosen, the field pops up and you are required to fill it
-    setConditionalOffer(event.target.value.toLowerCase() ==="pending");
+    setConditionalOffer(event.target.value.toLowerCase() === "pending");
     setOfferedStatus(event.target.value);
   };
   const handleSubmit = (event) => {
@@ -238,18 +212,33 @@ const ShiftCard = ({ shift, user, casualWorker, updateApplicationStatus }) => {
   return (
     <div
       className={`individual-card ${cardClass !== "" ? cardClass : ""} ${
-        selectedAnApplication ? "expanded" : ""
+        selectedAnApplication || showBrief ? "expanded" : ""
       } ${selectedRequest ? "expanded" : ""}`}
     >
       <div className="card-header">
-        <h3 title="The shift's reference">
-          {shift.reference}
-        </h3>
-        <p>
-          <strong>Brief:</strong> {shift.brief}
-        </p>
+        <h3 title="The shift's reference">{shift.reference}</h3>
+        <p>{shift.name}</p>
       </div>
-      <div className="card-body">
+      <div className={`card-body ${showBrief ? "expanded" : ""}`}>
+        <p onClick={() => setShowBrief(!showBrief)} className="show_hide_brief_p">
+          {showBrief ? "" : "Show Brief"}
+        </p>
+        <hr></hr>
+        {showBrief ? (
+          <div className="brief_content">
+            <p>{shift.brief}</p>
+          </div>
+        ) : (
+          ""
+        )}
+        {showBrief && (
+          <div>
+            <p onClick={() => setShowBrief(!showBrief)} className="show_hide_brief_p">
+          {showBrief ? "hide brief" : ""}
+        </p>
+        <hr></hr>  
+          </div>
+        )}
         <p>
           <FontAwesomeIcon icon={faCalendar} /> {shift.date}
         </p>
@@ -262,7 +251,7 @@ const ShiftCard = ({ shift, user, casualWorker, updateApplicationStatus }) => {
           Applications{" "}
         </p>
         {/* If there's no user application and the shift expired */}
-        {!userApplication && isShiftExpired && casualWorker.trim()!=="" && (
+        {!userApplication && isShiftExpired && casualWorker.trim() !== "" && (
           <p>
             <FontAwesomeIcon icon={faTimes} />{" "}
             {user.supervisor ? casualWorker : "You"} did not apply for this
@@ -431,23 +420,42 @@ const ShiftCard = ({ shift, user, casualWorker, updateApplicationStatus }) => {
             <form onSubmit={handleOfferSubmit} className="chat-box spacer">
               <span>In regards to this application, I want to</span>
               <select value={offeredStatus} onChange={handleOfferChange}>
-              <option value="OFFER">Offer</option>
-              <option value="ASSIGNED">Assign</option>
-              <option value="PENDING">Conditionally Offer (Provide comment)</option>
+                <option value="OFFER">Offer</option>
+                <option value="ASSIGNED">Assign</option>
+                <option value="PENDING">
+                  Conditionally Offer (Provide comment)
+                </option>
               </select>
               <span className="spacer">{casualWorker} this shift</span>
               {conditionalOffer ? (
                 <textarea
-                placeholder={`Please provide the offer's conditions for ${casualWorker}`}
-                value={conditions}
-                onChange={handleConditionChange}
-                className="spacer"
-                required
-              ></textarea>
-              ) :""}
-              <span className="darkOrange double-spacer block"><FontAwesomeIcon icon={faWarning} className="darkOrange"></FontAwesomeIcon>Choose carefully! those are Case-sensitive choices!</span>
-              <button type="submit"
-              className={`${conditionalOffer ? (conditions.length > 5 ? "submitOk" : "submitNotOk") : "submitOk"}`}>Offer
+                  placeholder={`Please provide the offer's conditions for ${casualWorker}`}
+                  value={conditions}
+                  onChange={handleConditionChange}
+                  className="spacer"
+                  required
+                ></textarea>
+              ) : (
+                ""
+              )}
+              <span className="darkOrange double-spacer block">
+                <FontAwesomeIcon
+                  icon={faWarning}
+                  className="darkOrange"
+                ></FontAwesomeIcon>
+                Choose carefully! those are Case-sensitive choices!
+              </span>
+              <button
+                type="submit"
+                className={`${
+                  conditionalOffer
+                    ? conditions.length > 5
+                      ? "submitOk"
+                      : "submitNotOk"
+                    : "submitOk"
+                }`}
+              >
+                Offer
               </button>
             </form>
           </div>

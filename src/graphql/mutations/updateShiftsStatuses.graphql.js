@@ -1,7 +1,8 @@
-import { gql } from "@apollo/client";
-const GET_ALL_SHIFTS = gql`
-query GetAllShifts {
-  getAllShifts {
+import {gql} from "@apollo/client";
+
+const UPDATE_SHIFT_STATUSES = gql`
+mutation UpdateShiftsStatus {
+  updateShiftsStatus {
     id
     status
     reference
@@ -49,6 +50,18 @@ query GetAllShifts {
       comment
       approvedBySupervisor {
         id
+        name
+        surname
+        biography
+        supervisor
+        mainDepartment
+        casualWorkDepartments
+        contacts {
+          contactType
+          value
+          preferredTimeSlot
+          preferredTime
+        }
       }
     }
     totalApplications
@@ -59,4 +72,4 @@ query GetAllShifts {
 }
 `;
 
-export default GET_ALL_SHIFTS;
+export default UPDATE_SHIFT_STATUSES;

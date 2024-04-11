@@ -1,59 +1,88 @@
-.disabled {
-  display: none;
+.shiftCreation {
+  background-color: #121212; /* Dark background for the form */
+  border-radius: 10px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle box shadow for depth */
+  padding: 20px; /* Padding inside the form */
+  max-width: 600px; /* Maximum width of the form */
+  width: 90%; /* Responsive width */
+  margin: 20px auto; /* Center form on the page */
+  color: #E0E0E0; /* Light grey text for readability */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Modern font */
 }
-.enabled {
-  display: block;
+
+.shiftCreation input[type="text"],
+.shiftCreation input[type="number"],
+.shiftCreation input[type="date"],
+.shiftCreation select,
+.shiftCreation textarea {
+  width: 100%; /* Full width inputs */
+  padding: 10px; /* Padding for inputs */
+  margin-top: 5px; /* Margin top for spacing */
+  border: none; /* Remove default border */
+  border-radius: 5px; /* Rounded corners for inputs */
+  background-color: #333333; /* Slightly lighter dark background for inputs */
+  color: #E0E0E0; /* Light grey text for inputs */
+}
+
+.shiftCreation input[type="submit"],
+.shiftCreation button {
+  background-color: #007BFF; /* Bootstrap primary blue for buttons */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
   cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-.time-picker {
-  display: flex;
-  flex-direction: column;
+.shiftCreation input[type="submit"]:hover,
+.shiftCreation button:hover {
+  background-color: #0056b3; /* Darken button on hover */
 }
 
-.period-selection {
-  display: flex;
-  align-items: center;
-}
-
-.sun-icon {
-  color: yellow;
-  margin-right: 5px;
-}
-
-.moon-icon {
-  color: darkgoldenrod; /* or white */
-  margin-right: 5px;
-}
-
-/* Additional CSS styles for radio buttons */
-.time-selector {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.shiftCreation label {
+  display: block; /* Make label take the full width */
+  margin-top: 15px; /* Space before each label */
 }
 
 .time-inputs {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
+  flex-direction: column; /* Stack commence and conclusion vertically */
+  width: 100%;
 }
 
 .input-group {
   display: flex;
   align-items: center;
+  justify-content: space-between; /* Spread out the internal elements */
+  flex-wrap: wrap; /* Allow elements to wrap if needed */
+  margin-bottom: 10px; /* Space between commence and conclusion sections */
 }
-.input-group:nth-child(1){
-    background-color: azure;
-}
-.input-group:nth-child(2){
-    background-color: darkmagenta;
-    color: white;
+.input-group input[type="number"]{
+  flex:none;
+  width: 50px;
 }
 
-.input-group label {
-  margin-right: 10px;
+.faCalendar, .faSun, .faMoon {
+  margin-right: 5px;
+}
+
+.faSun {
+  color: yellow;
+}
+
+.faMoon {
+  color: #FFA500; /* Cheese color/dark yellow */
+}
+
+.minute-controls {
+  display: flex;
+  align-items: center;
+}
+
+.minute-controls button,
+.minute-controls input {
+  margin: 0 5px; /* Adjust spacing */
 }
 
 .period-selection {
@@ -62,33 +91,25 @@
 }
 
 .period-selection input[type="radio"] {
+  accent-color: #007BFF;
   margin-right: 5px;
 }
-li {
-  cursor: pointer;
-}
 
-.shiftCreation {
-  background-color: #ffffff; /* White background */
-  border-radius: 10px; /* Rounded corners */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Box shadow for depth */
-  padding: 20px; /* Padding inside the card */
-  max-width: 600px; /* Maximum width of the card */
-  width: 90%; /* Responsive width */
-  margin-top: 20px; /* Top margin */
-}
-
-.shiftCreation div{
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
 .applicationForm {
-  margin-top: 20px; /* Add margin between shift creation and application form */
+  margin-top: 20px; /* Separate application form from shift creation form */
 }
 
-/* Media query for responsiveness */
+.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 @media screen and (max-width: 768px) {
   .shiftCreation {
-    max-width: 90%;
+    width: 100%; /* Adjust width on smaller screens */
+  }
+  
+  .input-group {
+    justify-content: center; /* Center elements on smaller screens */
   }
 }

@@ -105,7 +105,38 @@
 .header-container h3 {
   color: ghostwhite;
 }
+/* Unique styling for the 'Update All Shifts' button */
+.update-button {
+  padding: 6px 18px; 
+  background-color: #4CAF50; 
+  color: white;
+  font-weight: bold; 
+  border: none; 
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+  transition: background-color 0.3s, box-shadow 0.3s; 
+  margin-bottom: 5px;
+}
 
+.update-button:hover, .update-button:focus {
+  background-color: #45a049; 
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); 
+  cursor: pointer;
+}
+
+.update-button:disabled {
+  background-color: #ccc;
+  color: #666;
+  cursor: not-allowed; 
+}
+
+.loading-button {
+  gap: 10px; /*  space between spinner and text */
+}
+
+.no-shifts-message{
+  color:white;
+}
 /* Style for the casual worker input */
 .casual-worker-input {
   width: 400px; /* Make the input span the full width of its container */

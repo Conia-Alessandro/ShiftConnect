@@ -340,18 +340,18 @@ export function Hub() {
     <div className="hub page">
       {/* Header */}
       <div className="header-container">
-        <h1>{`${isSupervisor ? "Supervisor" : "Applicant"} Hub`}</h1>
-        <h3>{`Welcome back ${firstName}`}</h3>
-        <div>
+      <div>
         <button
         type="button"
         onClick={updateAllShifts}
         disabled={isLoading}
-        className={isLoading ? "loading-button" : ""}
+        className={isLoading ? "loading-button" : "update-button"}
       >
         {isLoading ? <div className="spinner"></div> : "Update All Shifts"}
       </button>
         </div>
+        <h1>{`${isSupervisor ? "Supervisor" : "Applicant"} Hub`}</h1>
+        <h3>{`Welcome back ${firstName}`}</h3>
         {/* Toggle button for the choice of shift / calendar */}
         <button
           onClick={() => toggleViewMode("shift")}
@@ -535,9 +535,7 @@ export function Hub() {
             <p>
               {filter === "rota"
                 ? "It seems that you either haven't applied to a shift or you haven't been offered one, check all shifts to apply to a shift!"
-                : `Sorry! It seems you don't have any ${
-                    filter === "applications" ? "Applications" : filter
-                  }.`}
+                : `Sorry! It seems that ${filter === "applications" ? "you haven't made any applications!":""} ${filter ==="allShifts" ? "there's no shifts open!":""}`}
             </p>
           </div>
         )

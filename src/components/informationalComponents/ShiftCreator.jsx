@@ -233,9 +233,9 @@ const ShiftCreator = ({ user, casualWorker, data }) => {
         conclusion: `${formData.conclusion}:${
           endMinutes === 0 ? "00" : endMinutes
         }${endPeriodAM ? "AM" : "PM"}`,
-        date: formatDateInput(formData.date),
+        date: formatDateDDMMYYYY(new Date(formData.date)), 
         reference: formData.reference,
-        deadLine: formatDateInput(formData.deadLine),
+        deadLine: formatDateDDMMYYYY(new Date(formData.deadLine)), 
         createdBy: createdBy,
       };
       const { data } = await createShift({
@@ -261,6 +261,7 @@ const ShiftCreator = ({ user, casualWorker, data }) => {
 
       //clear form variables
       setFormData({
+        name: "",
         brief: "",
         commence: 8,
         conclusion: 10,
@@ -303,13 +304,13 @@ const ShiftCreator = ({ user, casualWorker, data }) => {
     setEndPeriodAm(!endPeriodAm);
   };
   // Function to format date in DD/MM/YYYY format
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const day = date.getDate().toString().padStart(2, "0");
-    const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  function formatDateDDMMYYYY(date) {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
-  };
+  }
+  
   // Function to return date in YYYY-MM-DD
   const formatDateInput = (dateString) => {
     const date = new Date(dateString);
@@ -389,7 +390,17 @@ const ShiftCreator = ({ user, casualWorker, data }) => {
   // Increment and decrement functions for hours
   const handleHourChange = (field, change) => {
     setFormData((prevData) => {
-      const newHour = ((prevData[field] - 1 + change + 12) % 12) + 1; // Ensures wrapping from 12 back to 1
+      let newHour = ((prevData[field] - 1 + change + 12) % 12) + 1; // Ensures wrapping from 12 back to 1
+       // Ensuring that 'conclusion' is always at least one hour greater than 'commence' if 'startPeriodAM' is true
+    if (field === 'conclusion') {
+      const minConclusion = startPeriodAM ? prevData.commence + 1 : 1;
+      if( newHour < minConclusion && commenceMinutes < endMinutes && !endPeriodAM){
+        newHour = prevData.commence;
+      }
+      else if (newHour < minConclusion && !endPeriodAM) {
+        newHour = minConclusion; // Adjust 'conclusion' to be at least 'commence + 1'
+      }
+    }
       return {
         ...prevData,
         [field]: newHour,
@@ -453,6 +464,9 @@ const ShiftCreator = ({ user, casualWorker, data }) => {
       console.error("Error while creating application", error);
     }
   };
+  // Calculate the minimum value for the input
+  const minConclusionValue = startPeriodAM ? formData.commence + 1 : 1;
+
   return (
     <div className="shiftCreation">
       <form className="createShiftForm " onSubmit={handleSubmit}>
@@ -552,7 +566,7 @@ const ShiftCreator = ({ user, casualWorker, data }) => {
               <input
                 type="number"
                 name="conclusion"
-                min={1}
+                min={minConclusionValue}
                 max={12}
                 value={formData.conclusion}
                 onChange={handleInputChange}

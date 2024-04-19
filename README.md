@@ -6,6 +6,7 @@ This app has adopted [On-Behalf-Of flow](https://learn.microsoft.com/en-us/azure
 
 ## Get started with the React with Fluent UI template
 
+The following is a generated template from Microsoft and MS Teams on the applications functionality
 > **Prerequisites**
 >
 > To run the command bot template in your local dev machine, you will need:

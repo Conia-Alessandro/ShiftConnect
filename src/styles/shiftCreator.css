@@ -1,38 +1,50 @@
 .shiftCreation {
   background-color: #121212; /* Dark background for the form */
   border-radius: 10px; /* Rounded corners */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle box shadow for depth */
-  padding: 20px; /* Padding inside the form */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+  padding: 20px; 
   max-width: 600px; /* Maximum width of the form */
   width: 90%; /* Responsive width */
   margin: 20px auto; /* Center form on the page */
   color: #E0E0E0; /* Light grey text for readability */
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Modern font */
+  text-align: center;
 }
 
+.shiftCreation label{
+  text-align: left;
+}
 .shiftCreation input[type="text"],
 .shiftCreation input[type="number"],
 .shiftCreation input[type="date"],
 .shiftCreation select,
 .shiftCreation textarea {
-  width: 100%; /* Full width inputs */
-  padding: 10px; /* Padding for inputs */
-  margin-top: 5px; /* Margin top for spacing */
-  border: none; /* Remove default border */
-  border-radius: 5px; /* Rounded corners for inputs */
-  background-color: #333333; /* Slightly lighter dark background for inputs */
-  color: #E0E0E0; /* Light grey text for inputs */
+  width: 100%; 
+  padding: 10px; 
+  margin-top: 5px;
+  margin-bottom: 5px;
+  border: none;
+  border-radius: 5px; 
+  background-color: #333333; 
+  color: #E0E0E0; 
 }
-
+.shiftCreation input[type="date"]{
+  width: auto;
+}
+.shiftCreation input[type="text"][name="reference"],
+.shiftCreation input[type="text"][name="name"] {
+  width: auto;
+}
 .shiftCreation input[type="submit"],
 .shiftCreation button {
-  background-color: #007BFF; /* Bootstrap primary blue for buttons */
+  background-color: #007BFF; /* primary blue for buttons */
   color: white;
   border: none;
-  padding: 10px 20px;
+  padding: 8px 8px;
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
+  margin: 0 auto;
 }
 
 .shiftCreation input[type="submit"]:hover,
@@ -55,12 +67,21 @@
   display: flex;
   align-items: center;
   justify-content: space-between; /* Spread out the internal elements */
-  flex-wrap: wrap; /* Allow elements to wrap if needed */
+  flex-wrap: wrap; /* Allow elements to wrap */
   margin-bottom: 10px; /* Space between commence and conclusion sections */
 }
 .input-group input[type="number"]{
   flex:none;
   width: 50px;
+}
+.sun-icon {
+  color: yellow;
+  margin-right: 5px;
+}
+
+.moon-icon {
+  color: darkgoldenrod; /* or white */
+  margin-right: 5px;
 }
 
 .faCalendar, .faSun, .faMoon {

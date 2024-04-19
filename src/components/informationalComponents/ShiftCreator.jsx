@@ -387,26 +387,47 @@ const ShiftCreator = ({ user, casualWorker, data }) => {
       </ul>
     );
   };
-  // Increment and decrement functions for hours
   const handleHourChange = (field, change) => {
     setFormData((prevData) => {
-      let newHour = ((prevData[field] - 1 + change + 12) % 12) + 1; // Ensures wrapping from 12 back to 1
-       // Ensuring that 'conclusion' is always at least one hour greater than 'commence' if 'startPeriodAM' is true
-    if (field === 'conclusion') {
-      const minConclusion = startPeriodAM ? prevData.commence + 1 : 1;
-      if( newHour < minConclusion && commenceMinutes < endMinutes && !endPeriodAM){
-        newHour = prevData.commence;
+      const oldHour = prevData[field];
+      let newHour = ((oldHour - 1 + change + 12) % 12) + 1; // Ensures wrapping from 12 back to 1
+      let isCommence = field === 'commence';
+      let isConclusion = field === 'conclusion';
+
+      // Determine new AM/PM state based on wraparound
+      let newStartPeriodAm = startPeriodAm;
+      let newEndPeriodAm = endPeriodAm;
+      if ((oldHour === 12 && newHour === 1) || (oldHour === 1 && newHour === 12)) {
+        if (isCommence) {
+          newStartPeriodAm = !startPeriodAm;
+        } else if (isConclusion) {
+          newEndPeriodAm = !endPeriodAm;
+        }
       }
-      else if (newHour < minConclusion && !endPeriodAM) {
-        newHour = minConclusion; // Adjust 'conclusion' to be at least 'commence + 1'
+
+      // Update formData with the new hour first
+      let updatedFormData = { ...prevData, [field]: newHour };
+
+      // Ensuring 'conclusion' respects 'commence' with an hour difference minimum
+      if (isConclusion) {
+        const minConclusion = newStartPeriodAm ? prevData.commence + 1 : 1;
+        if (newEndPeriodAm && newHour < minConclusion) {
+          updatedFormData[field] = minConclusion; // Adjust 'conclusion' to be at least 'commence + 1'
+        }
       }
-    }
-      return {
-        ...prevData,
-        [field]: newHour,
-      };
+
+      // Finally, update the actual AM/PM state in React state
+      if (isCommence) {
+        setStartPeriodAm(newStartPeriodAm);
+      } else if (isConclusion) {
+        setEndPeriodAm(newEndPeriodAm);
+      }
+
+      return updatedFormData;
     });
-  };
+};
+
+  
 
   // Adjustments to handleInputChange to handle numeric input directly
   const handleInputChange = (e) => {

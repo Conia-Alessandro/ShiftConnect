@@ -63,7 +63,7 @@ export function Hub() {
 
   /**
    * 1 : Retrieve User credential and set the user to the Retrieved "Displayed Name" (unique to MS teams account)
-   * Example: Grim Saint III
+   * Example: Ernest Saint III
    */
   useEffect(() => {
     if (teamsUserCredential) {
@@ -74,12 +74,13 @@ export function Hub() {
   }, [teamsUserCredential]);
   /**
    * 2: Store the name and set it as the FirstName of the User for this application
-   * Example: Grim
+   * Change the name to a specific user to be allowed to enter
+   * Example: Ernest
    */
   useEffect(() => {
     if (user) {
       //const { name, surname, extra } = splitStringBySpace(user);
-      const { name, surname, extra } = splitStringBySpace("Grim Saint III");
+      const { name, surname, extra } = splitStringBySpace("Ernest Saint III");
       setFirstName(name);
 
       //Set last name, will be used for shifts
@@ -483,7 +484,7 @@ export function Hub() {
                 checked={filter === "rota"}
                 onChange={() => handleCheckboxChange("rota")}
               />{" "}
-              Rota
+              My Shifts
             </label>
           </div>
         )}
@@ -494,7 +495,7 @@ export function Hub() {
             onChange={handleShowPastShiftsChange}
             className="pastShiftsToggle"
           />{" "}
-          past shifts
+          All past shifts
         </label>
       </div>
       {/*Message on found or not applications */}
